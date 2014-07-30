@@ -49,7 +49,7 @@ public class CreateStudentData {
 
         int counter = 1;
         final ArrayList<Student> students = new ArrayList<Student>();
-        for(int i=1; i<=1000000; i++) {
+        for(int i=1; i<=50000; i++) {
             final String first = "First_" + i;
             final String last = "Last_" + i;
             final String username = "username_" + i;
@@ -69,10 +69,10 @@ public class CreateStudentData {
             final int cityId = randomDataGenerator.nextInt(0, cities.length-1);
             students.add(new Student(first, last, username, pwd, subjects, cities[cityId]));
 
-            if(students.size() == 50000) {
+            if(students.size() == 10000) {
                 mongoOps.insert(students, Student.class);
-                students.clear();
                 System.out.println("Batch " + counter++ + " inserted. " + new Date());
+                students.clear();
             }
         }
     }

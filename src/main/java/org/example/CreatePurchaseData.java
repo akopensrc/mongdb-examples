@@ -45,6 +45,50 @@ function(key, values) {
 {
     out: "total"
 });
+//Find total number of purchases and total purchases by city
+db.purchase.mapReduce(function(){
+    emit(this.city, {name:this.city, amount:this.amount, count:1});
+},
+function(key, values) {
+    var reducedObject = {
+        name: key,
+        amount: 0,
+        count:0
+    };
+    values.forEach( function(value) {
+        reducedObject.amount += value.amount;
+        reducedObject.count += value.count;
+    }
+    );
+    return reducedObject;
+    //return {"number": Array.sum(values), "total": Array.sum(values)}
+    //return Array.sum(values)
+},
+{
+    out: "total"
+});
+//Find total purchases by name and city --------------------------------- Workshop
+db.purchase.mapReduce(function(){
+    emit({"city": this.city, "name": this.name}, {name:this.city, amount:this.amount, count:1});
+},
+function(key, values) {
+    var reducedObject = {
+        name: key,
+        amount: 0,
+        count:0
+    };
+    values.forEach( function(value) {
+        reducedObject.amount += value.amount;
+        reducedObject.count += value.count;
+    }
+    );
+    return reducedObject;
+    //return {"number": Array.sum(values), "total": Array.sum(values)}
+    //return Array.sum(values)
+},
+{
+    out: "total"
+});
  */
 public class CreatePurchaseData {
 
@@ -54,7 +98,7 @@ public class CreatePurchaseData {
         final RandomDataGenerator randomDataGenerator = new RandomDataGenerator();
 
         String[] customers = {"David", "Charles", "Martin", "Robert"};
-        String[] cities = {AHMEDABAD, MUMBAI, DELHI, CHENNAI, JAIPUR, NOIDA, BARODA, BHOPAL};
+        String[] cities = {AHMEDABAD, MUMBAI, DELHI};
 
         final MongoClient mongoClient = new MongoClient(HOST, PORT);
         MongoOperations mongoOps = new MongoTemplate(mongoClient, "purchase");
@@ -73,8 +117,6 @@ public class CreatePurchaseData {
 
     public static double getRandomDouble(int start, int end) {
         final double random = new Random().nextDouble();
-        double result = start + (random * (end - start));
-
-        return result;
+        return start + (random * (end - start));
     }
 }

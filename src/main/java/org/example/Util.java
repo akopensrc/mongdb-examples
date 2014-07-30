@@ -5,7 +5,7 @@ import com.mongodb.DBCursor;
 public class Util {
 
     public static final String HOST = "localhost";
-    public static final int PORT = 27019;
+    public static final int PORT = 27017;
 
     public static final String BIOLOGY = "Biology";
     public static final String LANGUAGE = "Language";

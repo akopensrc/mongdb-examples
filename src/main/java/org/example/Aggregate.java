@@ -1,5 +1,16 @@
 package org.example;
 
+import static org.example.Util.COLLECTION_NAME;
+import static org.example.Util.DB_NAME;
+import static org.example.Util.ENGLISH;
+import static org.example.Util.HOST;
+import static org.example.Util.LANGUAGE;
+import static org.example.Util.MATHS;
+import static org.example.Util.PORT;
+
+import java.net.UnknownHostException;
+import java.util.Date;
+
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
@@ -8,17 +19,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-
-import java.net.UnknownHostException;
-import java.util.Date;
-
-import static org.example.Util.COLLECTION_NAME;
-import static org.example.Util.DB_NAME;
-import static org.example.Util.ENGLISH;
-import static org.example.Util.HOST;
-import static org.example.Util.LANGUAGE;
-import static org.example.Util.MATHS;
-import static org.example.Util.PORT;
 
 public class Aggregate {
 
@@ -39,6 +39,8 @@ public class Aggregate {
         System.out.println("================Count students by city starts " + new Date()+ "=====================");
         countByCity(collection);
         //find top 10 students in Maths
+        System.out.println("================Find top 10 students who scored maximum marks in maths subject starts " + new Date()+ "=====================");
+        findTopNBySubject(collection, MATHS, 10);
         //find top 10 students in required subjects only, with percentage
         //find top 10 students by city
     }
@@ -105,6 +107,29 @@ public class Aggregate {
 
         // run aggregation
         AggregationOutput output = collection.aggregate(new BasicDBObject("$unwind", "$subjects"), group);
+        System.out.println(output.getCommand().toString());
+
+
+        for (DBObject dbObject : output.results()) {
+            System.out.println(dbObject);
+        }
+    }
+
+    private static void findTopNBySubject(DBCollection collection, String subject, int top) {
+        DBObject match = new BasicDBObject("$match", new BasicDBObject("subjects.name", subject));
+
+        // build the $projection operation
+        DBObject fields = new BasicDBObject();
+        fields.put("firstName", 1);
+        fields.put("lastName", 1);
+        fields.put("subjects.marks", 1);
+        DBObject project = new BasicDBObject("$project", fields);
+
+        //DBObject orderBy = new BasicDBObject("$sort", "subjects.marks");
+        DBObject orderBy = new BasicDBObject();
+        orderBy.put("$limit", top);
+        // run aggregation
+        AggregationOutput output = collection.aggregate(new BasicDBObject("$unwind", "$subjects"), match, project, orderBy);
         System.out.println(output.getCommand().toString());
 
 
