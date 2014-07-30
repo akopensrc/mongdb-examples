@@ -1,14 +1,9 @@
 package org.example;
 
 import static org.example.Util.AHMEDABAD;
-import static org.example.Util.BARODA;
-import static org.example.Util.BHOPAL;
-import static org.example.Util.CHENNAI;
 import static org.example.Util.DELHI;
 import static org.example.Util.HOST;
-import static org.example.Util.JAIPUR;
 import static org.example.Util.MUMBAI;
-import static org.example.Util.NOIDA;
 import static org.example.Util.PORT;
 
 import java.net.UnknownHostException;
@@ -26,50 +21,6 @@ import com.mongodb.MongoClient;
 //Find total purchases by name
 db.purchase.mapReduce(function(){
     emit(this.name, {name:this.name, amount:this.amount, count:1});
-},
-function(key, values) {
-    var reducedObject = {
-        name: key,
-        amount: 0,
-        count:0
-    };
-    values.forEach( function(value) {
-        reducedObject.amount += value.amount;
-        reducedObject.count += value.count;
-    }
-    );
-    return reducedObject;
-    //return {"number": Array.sum(values), "total": Array.sum(values)}
-    //return Array.sum(values)
-},
-{
-    out: "total"
-});
-//Find total number of purchases and total purchases by city
-db.purchase.mapReduce(function(){
-    emit(this.city, {name:this.city, amount:this.amount, count:1});
-},
-function(key, values) {
-    var reducedObject = {
-        name: key,
-        amount: 0,
-        count:0
-    };
-    values.forEach( function(value) {
-        reducedObject.amount += value.amount;
-        reducedObject.count += value.count;
-    }
-    );
-    return reducedObject;
-    //return {"number": Array.sum(values), "total": Array.sum(values)}
-    //return Array.sum(values)
-},
-{
-    out: "total"
-});
-//Find total purchases by name and city --------------------------------- Workshop
-db.purchase.mapReduce(function(){
-    emit({"city": this.city, "name": this.name}, {name:this.city, amount:this.amount, count:1});
 },
 function(key, values) {
     var reducedObject = {
