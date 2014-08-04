@@ -23,6 +23,7 @@ public class Util {
     public static final String MATHS = "Maths";
     public static final String CHEMISTRY = "Chemistry";
     public static final String PHYSICS = "Physics";
+    public static final String NEW_JERSEY = "New Jersey";
 
     public static void printRecords(DBCursor cursor) {
         while(cursor.hasNext()) {

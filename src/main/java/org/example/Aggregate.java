@@ -1,5 +1,6 @@
 package org.example;
 
+import static org.example.CreateStudentData.REQUIRED_SUBJECTS;
 import static org.example.Util.COLLECTION_NAME;
 import static org.example.Util.DB_NAME;
 import static org.example.Util.ENGLISH;
@@ -29,9 +30,9 @@ public class Aggregate {
 
         final DBCollection collection = mongoOps.getCollection(COLLECTION_NAME);
 
-        System.out.println("================Find max by subject starts" + new Date()+ "=====================");
+        System.out.println("================Find max by subject starts " + new Date()+ "=====================");
         findMaxBySubject(collection, MATHS);
-        System.out.println("================Find max starts" + new Date()+ "=====================");
+        System.out.println("================Find max starts " + new Date()+ "=====================");
         findMax(collection);
         System.out.println("================Count by optional subject starts " + new Date()+ "=====================");
         countByOptionalSubject(collection, LANGUAGE);
@@ -42,7 +43,36 @@ public class Aggregate {
         System.out.println("================Find top 10 students who scored maximum marks in maths subject starts " + new Date()+ "=====================");
         findTopNBySubject(collection, MATHS, 10);
         //find top 10 students in required subjects only, with percentage
-        //find top 10 students by city
+        System.out.println("================Find top 10 students in required subjects only, with percentage starts " + new Date()+ "=====================");
+        findTop10BySubjectWithPct(collection, REQUIRED_SUBJECTS);
+    }
+
+    private static void findTop10BySubjectWithPct(DBCollection collection, String[] requiredSubjects) {
+        DBObject match = new BasicDBObject("$match", new BasicDBObject("subjects.name", new BasicDBObject("$in", requiredSubjects)));
+
+        // build the $projection operation
+        DBObject fields = new BasicDBObject();
+        fields.put("firstName", 1);
+        fields.put("lastName", 1);
+        fields.put("subjects.marks", 1);
+        DBObject project = new BasicDBObject("$project", fields);
+
+        // Now the $group operation
+        DBObject groupFields = new BasicDBObject( "_id", "$firstName");
+        groupFields.put("total", new BasicDBObject( "$avg", "$subjects.marks"));
+        DBObject group = new BasicDBObject("$group", groupFields);
+
+        DBObject orderBy = new BasicDBObject("$sort", new BasicDBObject("total", -1));
+        DBObject limit = new BasicDBObject();
+        limit.put("$limit", 10);
+        // run aggregation
+        AggregationOutput output = collection.aggregate(new BasicDBObject("$unwind", "$subjects"), match, project, group, orderBy, limit);
+        System.out.println(output.getCommand().toString());
+
+
+        for (DBObject dbObject : output.results()) {
+            System.out.println(dbObject);
+        }
     }
 
     private static void countByCity(DBCollection collection) {
